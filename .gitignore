@@ -1,6 +1,8 @@
 build/
+weather_overlay
 *.elf
 *.ovl
 *.map
 include/json.hpp
 include/tesla.hpp
+include/stb_truetype.h
