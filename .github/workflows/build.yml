@@ -28,7 +28,7 @@ jobs:
             -o include/json.hpp
 
           curl -fsSL \
-            https://raw.githubusercontent.com/WerWolv/libtesla/master/libs/tesla/include/tesla.hpp \
+            https://raw.githubusercontent.com/WerWolv/libtesla/master/include/tesla.hpp \
             -o include/tesla.hpp
 
           # 다운로드 실패 시 즉시 중단
