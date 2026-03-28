@@ -17,12 +17,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install Switch portlibs
+        run: dkp-pacman -Sy --noconfirm switch-curl switch-mbedtls switch-zlib
+
       - name: Download headers
         run: |
-          curl -fsSL -o include/json.hpp \
-            https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp
-          curl -fsSL -o include/tesla.hpp \
-            https://github.com/WerWolv/libtesla/raw/master/include/tesla.hpp
+          curl -fsSL \
+            https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp \
+            -o include/json.hpp
+
+          curl -fsSL \
+            https://raw.githubusercontent.com/WerWolv/libtesla/master/libs/tesla/include/tesla.hpp \
+            -o include/tesla.hpp
+
+          # 다운로드 실패 시 즉시 중단
+          test -s include/json.hpp  || { echo "json.hpp 다운로드 실패"; exit 1; }
+          test -s include/tesla.hpp || { echo "tesla.hpp 다운로드 실패"; exit 1; }
 
       - name: Build
         run: make
