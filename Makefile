@@ -32,8 +32,8 @@ ARCH     := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft \
 CFLAGS   := -g -Wall -O2 -ffunction-sections $(ARCH) $(DEFINES)
 CFLAGS   += $(INCLUDE) -D__SWITCH__
 
-# C++17 필수 / rtti·exception 비활성화는 오버레이 표준
-CXXFLAGS := $(CFLAGS) -std=c++17 -fno-rtti -fno-exceptions
+# tesla.hpp 가 std::bit_cast(C++20) 와 dynamic_cast(RTTI) 를 사용하므로 조정
+CXXFLAGS := $(CFLAGS) -std=c++20 -fno-exceptions
 
 ASFLAGS  := -g $(ARCH)
 LDFLAGS  := -specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) \

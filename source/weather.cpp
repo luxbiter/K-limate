@@ -7,76 +7,61 @@
 
 using json = nlohmann::json;
 
-// ──────────────────────────────────────────────
-// libcurl 수신 콜백
-// ──────────────────────────────────────────────
 static size_t curlWrite(void* ptr, size_t size, size_t nmemb, std::string* out) {
     out->append(static_cast<char*>(ptr), size * nmemb);
     return size * nmemb;
 }
 
-// ──────────────────────────────────────────────
-// 설정 파일 로드  (sdmc:/config/weather.json)
-// {
-//   "api_key": "YOUR_ENCODING_KEY",
-//   "nx": 60,
-//   "ny": 127
-// }
-// ──────────────────────────────────────────────
+// Load config from sdmc:/config/weather.json
 WeatherConfig loadConfig(const std::string& path) {
     WeatherConfig cfg;
 
     std::ifstream f(path);
-    if (!f.is_open()) return cfg;           // 파일 없음
+    if (!f.is_open()) return cfg;
 
-    try {
-        json j = json::parse(f);
-        cfg.api_key = j.at("api_key").get<std::string>();
-        if (j.contains("name")) cfg.name = j["name"].get<std::string>();
-        if (j.contains("nx"))   cfg.nx   = j["nx"].get<int>();
-        if (j.contains("ny"))   cfg.ny   = j["ny"].get<int>();
-        cfg.valid = !cfg.api_key.empty();
-    } catch (...) {
-        // 파싱 실패 → cfg.valid = false 유지
-    }
+    json j = json::parse(f, nullptr, /*exceptions=*/false);
+    if (j.is_discarded()) return cfg;
 
+    if (j.contains("api_key") && j["api_key"].is_string())
+        cfg.api_key = j["api_key"].get<std::string>();
+    if (j.contains("name") && j["name"].is_string())
+        cfg.name = j["name"].get<std::string>();
+    if (j.contains("nx") && j["nx"].is_number())
+        cfg.nx = j["nx"].get<int>();
+    if (j.contains("ny") && j["ny"].is_number())
+        cfg.ny = j["ny"].get<int>();
+
+    cfg.valid = !cfg.api_key.empty();
     return cfg;
 }
 
-// ──────────────────────────────────────────────
-// base_date / base_time 계산
-// 초단기실황은 매 정시 발표, xx:40 이후 제공
-// ──────────────────────────────────────────────
+// KMA ultra-short-term observation reports on the hour; available after xx:40.
+// Use the previous hour's data if current minute < 40.
 static void calcBaseTime(char date_out[9], char time_out[5]) {
     time_t now = time(nullptr);
     struct tm t;
-    localtime_r(&now, &t);          // libnx: localtime_r 사용 가능
+    localtime_r(&now, &t);
 
-    // 아직 40분이 안 됐으면 1시간 이전 발표분 사용
     if (t.tm_min < 40) {
         t.tm_hour -= 1;
         if (t.tm_hour < 0) {
             t.tm_hour = 23;
-            t.tm_mday -= 1;         // 날짜 감소 (mktime 재계산)
+            t.tm_mday -= 1;
             mktime(&t);
         }
     }
 
-    snprintf(date_out, 9,  "%04d%02d%02d",
+    snprintf(date_out, 9, "%04d%02d%02d",
              t.tm_year + 1900, t.tm_mon + 1, t.tm_mday);
-    snprintf(time_out, 5,  "%02d00", t.tm_hour);
+    snprintf(time_out, 5, "%02d00", t.tm_hour);
 }
 
-// ──────────────────────────────────────────────
-// 기상청 초단기실황 조회 (getUltraSrtNcst)
-// ──────────────────────────────────────────────
 WeatherData fetchWeather(const WeatherConfig& cfg) {
     WeatherData data;
 
     char base_date[9], base_time[5];
     calcBaseTime(base_date, base_time);
 
-    // URL 조립 – ServiceKey는 이미 URL인코딩된 상태로 발급됨
     std::string url =
         "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst"
         "?ServiceKey=" + cfg.api_key +
@@ -97,8 +82,6 @@ WeatherData fetchWeather(const WeatherConfig& cfg) {
     curl_easy_setopt(curl, CURLOPT_WRITEDATA,      &response);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT,        10L);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    // 스위치 환경: 내장 CA 번들이 없으므로 검증 비활성화
-    // (프로덕션에서는 적절한 CA 번들 제공 권장)
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
@@ -107,29 +90,26 @@ WeatherData fetchWeather(const WeatherConfig& cfg) {
 
     if (res != CURLE_OK) return data;
 
-    // ── JSON 파싱 ──────────────────────────────
-    try {
-        auto j     = json::parse(response);
-        auto& body = j.at("response").at("body");
+    json j = json::parse(response, nullptr, /*exceptions=*/false);
+    if (j.is_discarded()) return data;
 
-        // 결과 코드 확인
-        std::string resultCode =
-            j["response"]["header"]["resultCode"].get<std::string>();
-        if (resultCode != "00") return data;
+    if (!j.contains("response")) return data;
+    auto& hdr = j["response"]["header"];
+    if (!hdr.contains("resultCode")) return data;
+    if (hdr["resultCode"].get<std::string>() != "00") return data;
 
-        auto& items = body.at("items").at("item");
-        for (auto& item : items) {
-            const auto& cat = item.at("category").get<std::string>();
-            const auto& val = item.at("obsrValue").get<std::string>();
-            if      (cat == "T1H") data.temp = val;
-            else if (cat == "PTY") data.pty  = val;
-            else if (cat == "REH") data.reh  = val;
-        }
-        data.valid = !data.temp.empty();
-    } catch (...) {
-        // JSON 구조가 예상과 다를 경우 valid=false 유지
+    auto& items = j["response"]["body"]["items"]["item"];
+    if (!items.is_array()) return data;
+
+    for (auto& item : items) {
+        if (!item.contains("category") || !item.contains("obsrValue")) continue;
+        const auto cat = item["category"].get<std::string>();
+        const auto val = item["obsrValue"].get<std::string>();
+        if      (cat == "T1H") data.temp = val;
+        else if (cat == "PTY") data.pty  = val;
+        else if (cat == "REH") data.reh  = val;
     }
 
+    data.valid = !data.temp.empty();
     return data;
 }
-

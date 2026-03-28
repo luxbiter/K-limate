@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(printf '# Klimate\\\\n')",
+      "Bash(\"C:\\\\Users\\\\hyunx\\\\Desktop\\\\klimate\\\\README.md\")"
+    ]
+  }
+}
