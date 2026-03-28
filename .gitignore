@@ -1,4 +1,5 @@
 build/
+.claude
 weather_overlay
 *.elf
 *.ovl
