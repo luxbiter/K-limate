@@ -78,9 +78,9 @@ export OFILES_SRC := $(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
 export OFILES     := $(OFILES_SRC)
 export HFILES_BIN :=
 
-export INCLUDE  := $(foreach dir,$(INCLUDES),$(CURDIR)/$(dir)) \
-                   $(foreach dir,$(LIBDIRS),$(dir)/include) \
-                   $(CURDIR)/$(BUILD)
+export INCLUDE  := $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
+                   $(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+                   -I$(CURDIR)/$(BUILD)
 
 export LIBPATHS := $(foreach dir,$(LIBDIRS),$(dir)/lib)
 
