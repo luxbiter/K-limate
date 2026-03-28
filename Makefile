@@ -16,7 +16,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 # 빌드 설정
 #---------------------------------------------------------------------------------
-TARGET   := weather_overlay   # 출력 파일 이름 (weather_overlay.ovl)
+TARGET   := k_limate
 BUILD    := build
 SOURCES  := source
 INCLUDES := include
@@ -106,14 +106,13 @@ else
 
 DEPENDS := $(OFILES:.o=.d)
 
-all: $(OUTPUT).ovl
+all: $(TOPDIR)/$(TARGET).ovl
 
-# .ovl = NRO 바이너리를 그대로 확장자만 변경
-$(OUTPUT).ovl: $(OUTPUT).elf
+$(TOPDIR)/$(TARGET).ovl: $(TOPDIR)/$(TARGET).elf
 	@elf2nro $< $@
 	@echo "built ... $(notdir $@)"
 
-$(OUTPUT).elf: $(OFILES)
+$(TOPDIR)/$(TARGET).elf: $(OFILES)
 	@echo "linking $(notdir $@)"
 	$(LD) $(LDFLAGS) $(OFILES) $(LIBPATHS:%=-L%) $(LIBS) -o $@
 

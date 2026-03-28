@@ -30,6 +30,24 @@ cp include/stb_truetype.h /opt/devkitpro/portlibs/switch/include/
 echo "[4/5] Building..."
 make
 
+echo "[5/5] Locating OVL..."
+# elf2nro drops the file in build/ without a proper name due to a Makefile quirk.
+# Find the actual OVL (smallest file with .ovl extension or named .ovl) and copy it.
+OVL=""
+if   [ -f "build/.ovl" ];          then OVL="build/.ovl"
+elif [ -f "k_limate.ovl" ];        then OVL="k_limate.ovl"
+else
+    OVL=$(find build -name "*.ovl" 2>/dev/null | head -1)
+fi
+
+if [ -z "$OVL" ]; then
+    echo "ERROR: OVL file not found after build."
+    exit 1
+fi
+
+cp "$OVL" k_limate.ovl
+SIZE=$(du -h k_limate.ovl | cut -f1)
+
 echo ""
-echo "[5/5] Done! weather_overlay.ovl is ready."
-echo "  Copy to SD:/switch/.overlays/weather_overlay.ovl"
+echo "Done! k_limate.ovl ($SIZE)"
+echo "  Copy to SD:/switch/.overlays/k_limate.ovl"

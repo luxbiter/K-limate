@@ -1,6 +1,6 @@
 # K-limate
 
-Nintendo Switch Tesla overlay(Uberhands) that displays real-time weather information using the Korea Meteorological Administration (KMA) API.
+Nintendo Switch Tesla overlay that displays real-time weather information using the Korea Meteorological Administration (KMA) API.
 
 ## Features
 
@@ -15,28 +15,47 @@ Nintendo Switch Tesla overlay(Uberhands) that displays real-time weather informa
 - [Tesla Menu](https://github.com/WerWolv/Tesla-Menu) installed
 - Korea Meteorological Administration API key ([data.go.kr](https://www.data.go.kr))
 
+## SD Card Layout
+
+```
+SD:/
+├── switch/
+│   └── .overlays/
+│       └── k_limate.ovl        <-- overlay file here
+└── config/
+    └── weather.json            <-- config file here
+```
+
 ## Installation
 
-1. Download `weather_overlay.ovl` from [Releases](../../releases)
-2. Copy to your SD card:
-   ```
-   SD:/switch/.overlays/weather_overlay.ovl
-   ```
-3. Create the config file at `SD:/config/weather.json`:
-   ```json
-   {
-     "api_key": "YOUR_KMA_API_KEY",
-     "name": "Seoul",
-     "nx": 60,
-     "ny": 127
-   }
-   ```
-4. Launch Tesla Menu on your Switch and select **Klimate**
+**1. Download the overlay**
 
-### Grid coordinates (nx, ny)
+Download `k_limate.ovl` from [Releases](../../releases) and copy it to:
+```
+SD:/switch/.overlays/k_limate.ovl
+```
 
-Find your coordinates at the [KMA grid search page](https://www.weather.go.kr/w/obs-climate/land/surface/aws.do).
-Default values (60, 127) correspond to Seoul.
+**2. Create the config file**
+
+Create `SD:/config/weather.json` with the following content:
+```json
+{
+  "api_key": "YOUR_KMA_API_KEY",
+  "name": "Seoul",
+  "nx": 60,
+  "ny": 127
+}
+```
+
+> Get your API key from [data.go.kr](https://www.data.go.kr) by signing up and requesting access to the **Korea Meteorological Administration Forecast API** (기상청_단기예보 ((구)_동네예보) 조회서비스).
+
+**3. Find your grid coordinates (nx, ny)**
+
+Use the [KMA coordinate finder](https://www.weather.go.kr/w/obs-climate/land/surface/aws.do) to look up the grid coordinates for your city. Default values `(60, 127)` correspond to Seoul.
+
+**4. Launch**
+
+Boot your Switch, open **Tesla Menu**, and select **K-limate** from the overlay list.
 
 ## Building from Source
 
@@ -46,7 +65,7 @@ Docker is required.
 docker run --rm -v "${PWD}:/project" devkitpro/devkita64 bash /project/docker-build.sh
 ```
 
-The output file `weather_overlay.ovl` will be created in the project root.
+The output file `k_limate.ovl` will be created in the project root.
 
 ## Project Structure
 
@@ -70,7 +89,6 @@ MIT
 
 # K-limate (한국어)
 
-**대단하다! K-날씨!**
 기상청 API를 이용해 실시간 날씨 정보를 표시하는 Nintendo Switch Tesla 오버레이입니다.
 
 ## 기능
@@ -86,28 +104,47 @@ MIT
 - [Tesla Menu](https://github.com/WerWolv/Tesla-Menu) 설치
 - 기상청 API 키 ([data.go.kr](https://www.data.go.kr) 에서 발급)
 
+## SD카드 배치
+
+```
+SD:/
+├── switch/
+│   └── .overlays/
+│       └── k_limate.ovl        <-- 오버레이 파일
+└── config/
+    └── weather.json            <-- 설정 파일
+```
+
 ## 설치 방법
 
-1. [Releases](../../releases) 에서 `weather_overlay.ovl` 다운로드
-2. SD카드에 복사:
-   ```
-   SD:/switch/.overlays/weather_overlay.ovl
-   ```
-3. `SD:/config/weather.json` 파일 생성:
-   ```json
-   {
-     "api_key": "기상청_API_키",
-     "name": "서울",
-     "nx": 60,
-     "ny": 127
-   }
-   ```
-4. Switch에서 Tesla Menu 실행 후 **Klimate** 선택
+**1. 오버레이 파일 복사**
 
-### 격자 좌표 (nx, ny)
+[Releases](../../releases) 에서 `k_limate.ovl` 을 다운로드한 후 아래 경로에 복사:
+```
+SD:/switch/.overlays/k_limate.ovl
+```
 
-[기상청 격자 조회](https://www.weather.go.kr/w/obs-climate/land/surface/aws.do) 에서 지역별 좌표를 확인하세요.
-기본값 (60, 127) 은 서울입니다.
+**2. 설정 파일 생성**
+
+`SD:/config/weather.json` 파일을 아래 내용으로 생성:
+```json
+{
+  "api_key": "기상청_API_키",
+  "name": "서울",
+  "nx": 60,
+  "ny": 127
+}
+```
+
+> API 키는 [data.go.kr](https://www.data.go.kr) 에 가입 후 **기상청_단기예보 조회서비스** 를 신청하면 발급됩니다.
+
+**3. 격자 좌표 (nx, ny) 확인**
+
+[기상청 관측소 페이지](https://www.weather.go.kr/w/obs-climate/land/surface/aws.do) 에서 지역별 격자 좌표를 확인하세요. 기본값 `(60, 127)` 은 서울입니다.
+
+**4. 실행**
+
+Switch 부팅 후 **Tesla Menu** 를 열고 오버레이 목록에서 **K-limate** 를 선택합니다.
 
 ## 빌드 방법
 
@@ -117,7 +154,7 @@ Docker가 필요합니다.
 docker run --rm -v "${PWD}:/project" devkitpro/devkita64 bash /project/docker-build.sh
 ```
 
-빌드가 완료되면 프로젝트 폴더에 `weather_overlay.ovl` 파일이 생성됩니다.
+빌드가 완료되면 프로젝트 폴더에 `k_limate.ovl` 파일이 생성됩니다.
 
 ## 프로젝트 구조
 

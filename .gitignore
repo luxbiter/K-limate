@@ -1,6 +1,8 @@
 build/
 .claude
 weather_overlay
+k_limate
+*.ovl
 *.elf
 *.ovl
 *.map
