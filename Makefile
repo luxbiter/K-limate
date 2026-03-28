@@ -47,7 +47,7 @@ LDFLAGS  := -specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) \
 #   zlib     → 압축 (curl 의존)
 #   libnx    → Nintendo Switch 기본 라이브러리
 #---------------------------------------------------------------------------------
-LIBS     := -ltesla -lcurl -lmbedtls -lmbedx509 -lmbedcrypto -lz -lnx
+LIBS     := -lcurl -lmbedtls -lmbedx509 -lmbedcrypto -lz -lnx
 
 #---------------------------------------------------------------------------------
 # 라이브러리 검색 경로

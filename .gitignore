@@ -3,3 +3,4 @@ build/
 *.ovl
 *.map
 include/json.hpp
+include/tesla.hpp

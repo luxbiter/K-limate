@@ -17,14 +17,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download json.hpp
+      - name: Download headers
         run: |
           curl -fsSL -o include/json.hpp \
             https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp
-
-      - name: Install libtesla
-        run: |
-          dkp-pacman -S --needed --noconfirm switch-libtesla
+          curl -fsSL -o include/tesla.hpp \
+            https://github.com/WerWolv/libtesla/raw/master/include/tesla.hpp
 
       - name: Build
         run: make
