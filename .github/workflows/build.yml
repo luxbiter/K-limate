@@ -18,7 +18,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Switch portlibs
-        run: dkp-pacman -Sy --noconfirm switch-curl switch-mbedtls switch-zlib
+        # -y(DB sync) 생략: pkg.devkitpro.org DB 접근 없이 이미지 내 캐시 사용
+        run: dkp-pacman -S --needed --noconfirm switch-curl switch-mbedtls switch-zlib
 
       - name: Download headers
         run: |
