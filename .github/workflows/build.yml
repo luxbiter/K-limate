@@ -1,0 +1,39 @@
+name: Build Klimate Overlay
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # 수동 실행 버튼
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:latest  # Switch 빌드 환경 (Docker)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download json.hpp
+        run: |
+          curl -fsSL -o include/json.hpp \
+            https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp
+
+      - name: Install libtesla
+        run: |
+          dkp-pacman -S --needed --noconfirm switch-libtesla
+
+      - name: Build
+        run: make
+        env:
+          DEVKITPRO: /opt/devkitpro
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: klimate-overlay
+          path: weather_overlay.ovl
+          if-no-files-found: error
