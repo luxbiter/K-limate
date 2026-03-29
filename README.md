@@ -1,4 +1,4 @@
-# K-limate
+# K-limate (INDEV!!!)
 
 Nintendo Switch Tesla overlay that displays real-time weather information using the Korea Meteorological Administration (KMA) API.
 
@@ -87,7 +87,7 @@ MIT
 
 ---
 
-# K-limate (한국어)
+# K-limate (한국어) (개발중!!!)
 
 기상청 API를 이용해 실시간 날씨 정보를 표시하는 Nintendo Switch Tesla 오버레이입니다.
 
